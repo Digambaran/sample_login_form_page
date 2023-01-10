@@ -1,32 +1,89 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import classnames from "classnames";
 import ClosedEye from "../closedeye";
 import OpenEye from "../openeye";
 
+/**
+ *
+ * @param {{msg:string}} param0
+ * @returns
+ */
+const ErrorMsg = ({ msg }) => (
+  <span className="text-error text-[11px] pt-2 font-medium ">{msg}</span>
+);
+
 const LoginForm = () => {
+  const loginApi = `${
+    process.env.BLOCK_FUNCTION_URL || "http://localhost:5000"
+  }/sample_shield_login_fn`;
+
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
-    formState: { isValid },
+    setError,
+    formState: { isValid, errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
+
   return (
-    <form className="w-full mb-0" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className="w-full mb-0"
+      onSubmit={handleSubmit(async (data) => {
+        console.log(data);
+        const _j = await fetch(loginApi, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+        const response = await _j.json();
+        if (_j.status === 200 && response.err) {
+          setError("email", { type: "wrongCreds" }, { shouldFocus: true });
+          setError("password", { type: "wrongCreds" }, { shouldFocus: false });
+          return;
+        }
+
+        const token = response.data.token;
+        // handle token here
+        window.location = `www.google.com`;
+      })}
+    >
       <div>
         <div className="mb-6">
           <label className="text-black font-almost-bold text-sm">
             E-mail or Username*
           </label>
           <input
-            className="w-full mt-2.5 px-4 py-3 bg-light-gray border border-light-gray  focus:border-primary focus:outline-none rounded-sm text-sm font-almost-bold text-light-black"
+            className={classnames(
+              "w-full mt-2.5 px-4 py-3 bg-light-gray border focus:outline-none rounded-sm text-sm font-almost-bold text-light-black",
+              {
+                "border-light-gray": !errors.userNotFound,
+                "focus:border-primary": !errors.userNotFound,
+              },
+              {
+                "border-error": errors.userNotFound,
+                "focus:border-error": errors.userNotFound,
+              }
+            )}
             type="text"
-            {...register("email", { required: true, minLength: 1 })}
+            {...register("email", {
+              required: true,
+              minLength: 1,
+              validate: {
+                userNotFound: (_) => {},
+                wrongProvider: (_) => {},
+                wrongCreds: (_) => {},
+              },
+            })}
           />
-          <span
-            className="color-skin-error text-[11px] pt-2 font-medium"
-            id="email-error"
-          ></span>
+          {errors.email && errors.email.type === "userNotFound" && (
+            <ErrorMsg msg="no user found" />
+          )}
+          {errors.email && errors.email.type === "wrongProvider" && (
+            <ErrorMsg msg="email is associated with another provider" />
+          )}
+          {errors.email && errors.email.type === "wrongCreds" && (
+            <ErrorMsg msg="password or email is wrong, please try again" />
+          )}
         </div>
         <div className="mb-6">
           <label className="text-black font-almost-bold text-sm">
@@ -34,9 +91,24 @@ const LoginForm = () => {
           </label>
           <div className="relative">
             <input
-              className="w-full mt-2.5 px-4 py-3 bg-light-gray border border-light-gray  focus:border-primary focus:outline-none rounded-sm text-sm font-almost-bold text-light-black"
+              className={classnames(
+                "w-full mt-2.5 px-4 py-3 bg-light-gray border focus:outline-none rounded-sm text-sm font-almost-bold text-light-black",
+                {
+                  "border-light-gray": !errors.wrongPassword,
+                  "focus:border-primary": !errors.wrongPassword,
+                },
+                {
+                  "border-error": errors.wrongPassword,
+                  "focus:border-error": errors.wrongPassword,
+                }
+              )}
               type={showPassword ? "text" : "password"}
-              {...register("password", { required: true })}
+              {...register("password", {
+                required: true,
+                validate: {
+                  wrongCreds: (_) => {},
+                },
+              })}
             />
             <div
               className={`absolute w-8 h-full right-1 cursor-pointer ${
@@ -47,9 +119,9 @@ const LoginForm = () => {
               {showPassword ? <OpenEye /> : <ClosedEye />}
             </div>
           </div>
-          <span className="text-red-600 text-[11px] pt-2 font-medium hidden ">
-            Please enter a password
-          </span>
+          {/* {errors.password && errors.password.type === "wrongCreds" && (
+            <ErrorMsg msg="password or email is wrong, please try again" />
+          )} */}
         </div>
       </div>
       <div className="">
