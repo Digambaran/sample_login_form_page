@@ -9,14 +9,10 @@ import OpenEye from "../openeye";
  * @param {{msg:string}} param0
  * @returns
  */
-const ErrorMsg = ({ msg }) => (
-  <span className="text-error text-[11px] pt-2 font-medium ">{msg}</span>
-);
+const ErrorMsg = ({ msg }) => <span className="text-error text-[11px] pt-2 font-medium ">{msg}</span>;
 
 const LoginForm = () => {
-  const loginApi = `${
-    process.env.BLOCK_FUNCTION_URL || "http://localhost:5000"
-  }/sample_shield_login_fn`;
+  const loginApi = `${process.env.BLOCK_FUNCTION_URL || "http://localhost:5000"}/sample_shield_login_fn`;
 
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -49,9 +45,7 @@ const LoginForm = () => {
     >
       <div>
         <div className="mb-6">
-          <label className="text-black font-almost-bold text-sm">
-            E-mail or Username*
-          </label>
+          <label className="text-black font-almost-bold text-sm">E-mail or Username*</label>
           <input
             className={classnames(
               "w-full mt-2.5 px-4 py-3 bg-light-gray border focus:outline-none rounded-sm text-sm font-almost-bold text-light-black",
@@ -75,9 +69,7 @@ const LoginForm = () => {
               },
             })}
           />
-          {errors.email && errors.email.type === "userNotFound" && (
-            <ErrorMsg msg="no user found" />
-          )}
+          {errors.email && errors.email.type === "userNotFound" && <ErrorMsg msg="no user found" />}
           {errors.email && errors.email.type === "wrongProvider" && (
             <ErrorMsg msg="email is associated with another provider" />
           )}
@@ -86,9 +78,7 @@ const LoginForm = () => {
           )}
         </div>
         <div className="mb-6">
-          <label className="text-black font-almost-bold text-sm">
-            Password*
-          </label>
+          <label className="text-black font-almost-bold text-sm">Password*</label>
           <div className="relative">
             <input
               className={classnames(
@@ -111,9 +101,7 @@ const LoginForm = () => {
               })}
             />
             <div
-              className={`absolute w-8 h-full right-1 cursor-pointer ${
-                showPassword ? "top-7" : "top-8"
-              }`}
+              className={`absolute w-8 h-full right-1 cursor-pointer ${showPassword ? "top-7" : "top-8"}`}
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <OpenEye /> : <ClosedEye />}
@@ -129,7 +117,7 @@ const LoginForm = () => {
           Forgot Password?{" "}
           <a
             className="text-primary text-sm font-bold cursor-pointer hover:underline underline-offset-4 focus:outline-none"
-            href="#"
+            href="http://localhost:4011"
           >
             Reset
           </a>
